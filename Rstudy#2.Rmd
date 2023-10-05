@@ -1,0 +1,230 @@
+---
+title: "R스터디#2"
+output: pdf_document
+date: "2023-10-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+# Chapter 4
+# Chapter 4-1) 데이터 수집하기
+ID<-c(1,2,3,4,5)
+ID
+SEX<-c('F','M','F','M','F')
+SEX
+DATA<-data.frame(ID=ID,SEX=SEX)
+View(DATA)
+# View 함수는 반드시 첫글자 대문자로
+# 외부 데이터 가져오기
+ex_data=read.table("C:/Users/MYCOM/data/data_ex.txt",encoding='EUC-KR',fileEncoding = 'UTF-8')
+View(ex_data)
+# header 옵션
+ex_data1=read.table("C:/Users/MYCOM/data/data_ex.txt",encoding='EUC-KR',fileEncoding = 'UTF-8',header=TRUE)
+View(ex_data1)
+# 원시데이터 1행이 변수명인지 아닌지 확인
+# header=TRUE 옵션을 추가하면 원시데이터 1행이 변수명으로 지정됨
+# 변수명으로 사용할 행이 없을 때
+varname<-c('ID','SEX','AGE','AREA')
+ex1_data=read.table("C:/Users/MYCOM/data/data_ex.txt",encoding='EUC-KR',fileEncoding = 'UTF-8',col.names=varname)
+View(ex1_data)
+# skip: 데이터 전체가 아닌 옵션에 지정한 특정 행까지 제외하고 그이후 행부터 가져옴
+ex_data2=read.table("C:/Users/MYCOM/data/data_ex.txt",encoding='EUC-KR',fileEncoding = 'UTF-8',header=TRUE,skip=2)
+View(ex_data2)
+# nrows: 몇개의 행을 불러올지 지정
+ex_data3=read.table("C:/Users/MYCOM/data/data_ex.txt",encoding='EUC-KR',fileEncoding = 'UTF-8',header=TRUE,nrows=7)
+
+View(ex_data3)
+# sep: 구분자 지정하는 옵션
+ex_data5=read.table("C:/Users/MYCOM/data/data_ex.txt",encoding='EUC-KR',fileEncoding = 'UTF-8',header=TRUE,sep=',')
+
+View(ex_data5)
+
+## JSON 파일: 데이터 안에 다시 데이터가 정의된 중첩데이터구조
+#json_data<-fromJSON("C:/Users/MYCOM/data/Rstudy/data_ex.json");str(json_data)
+# Chapter 4-1) 데이터 관측하기
+# 내장 데이터 세트 가져오기
+data('iris');iris #데이터세트 확인하기
+# 데이터 구조 확인하기
+str(iris)
+# 데이터 세트 컬럼 및 관측치 확인학
+ncol(iris)
+nrow(iris)
+dim(iris)
+
+length(iris) # iris 데이터 세트 열의 개수 확인
+length(iris$Species) # iris 데이터 세트 Species 열의 데이터 개수 확인
+
+# 데이터 앞부분 확인 
+head(iris)
+
+# 데이터 뒷부분 확인 
+tail(iris,n=5)
+
+# 기술통계량 확인하기 
+mean(iris$Sepal.Length)
+median(iris$Sepal.Length)
+
+# 최솟값, 최댓값과 범위 
+min(iris$Sepal.Length)
+max(iris$Sepal.Length)
+range(iris$Sepal.Length)
+
+# 사분위값 구하기
+quantile(iris$Sepal.Length)
+quantile(iris$Sepal.Length,probs=0.25)
+quantile(iris$Sepal.Length,probs=0.5)
+quantile(iris$Sepal.Length,probs=0.75)
+quantile(iris$Sepal.Length,probs=0.8)
+
+# 분산과 표준편차 구하기 
+var(iris$Sepal.Length)
+sd(iris$Sepal.Length)
+
+# 첨도와 왜도 구하기
+library(psych)
+
+kurtosi(iris$Sepal.Length)
+skew(iris$Sepal.Length)
+
+# 데이터 빈도분석 하기 
+library(descr)
+freq_test=freq(iris$Sepal.Length,plot=T)
+# plot=F 옵션을 통해 막대 그래프 출력을 제외할 수 있음
+freq_test
+
+# Chapter 4-3) 데이터 탐색하기
+library(descr)
+library(readxl)
+exdata1<-read_excel("C:/Users/MYCOM/data/Rstudy/Sample1.xlsx")
+head(exdata1)
+
+freq(exdata1$SEX,plot=T,main='성별(barplot)')
+
+# 빈도분포를 구하고 막대 그래프 그리기 
+dist_sex<-table(exdata1$SEX)
+dist_sex
+barplot(dist_sex,ylim=c(0,14),main='BARPLOT',xlab='SEX',
+        ylab='FREQUENCY',names=c('Female','Male'),
+        col=c('pink','navy'))
+# 상자 그림 그리기
+boxplot(exdata1$Y21_CNT,exdata1$Y20_CNT,ylim=c(0,60),
+        main='boxplot',names=c('21년건수','20년건수'),
+        col=c('green','yellow'))
+# 히스토그램 그리기 
+hist(exdata1$AGE,xlim=c(0,60),ylim=c(0,7),main='AGE 분포')
+# 파이차트 그리기
+data(mtcars)
+x<-table(mtcars$gear)
+pie(x)
+# 줄기잎그림 그리기
+x<-c(1,2,3,4,7,8,8,5,9,6,9)
+stem(x)
+stem(x,scale=2)
+stem(x,scale=0.5)
+# 산점도 그리기
+data(iris)
+plot(x=iris$Sepal.Length,y=iris$Petal.Width)
+# 산점도 행렬
+data(iris)
+pairs(iris)
+# psych 패키지로 산점도 행렬 그리기 
+library(psych)
+data(iris)
+pairs.panels(iris)
+```
+
+```{r}
+
+# Chapter 6
+# Chapter 6-1) 그래프 그리기
+library(ggplot2)
+str(airquality)
+# 그래프 기본 틀 생성하기
+ggplot(airquality,aes(x=Day,y=Temp))
+# 산점도 그리기 
+ggplot(airquality,aes(x=Day,y=Temp))+geom_point(size=3,color='purple')
+# 선그래프 그리기
+ggplot(airquality,aes(x=Day,y=Temp))+geom_line()
+# 막대 그래프 그리기
+ggplot(mtcars,aes(x=cyl))+geom_bar(width=0.5)
+# cyl 변수의 속성 확인해보기
+str(mtcars$cyl)
+# 빈범주를 제외하고 싶다면 수치형인 데이터를 범주화할 수 있는 factor 함수 사용하기
+ggplot(mtcars,aes(x=factor(cyl)))+geom_bar(width=0.5)
+# 누적 막대 그래프 그리기
+ggplot(mtcars,aes(x=factor(cyl)))+geom_bar(aes(fill=factor(gear)))
+# 누적 막대 그래프로 그리는 선버스트 차트
+# theta='y' 옵션을 통해 그래프 가운데가 도넛처럼 비어있는 선버스트 차트 그리기
+ggplot(mtcars,aes(x=factor(cyl)))+geom_bar(aes(fill=factor(gear)))+coord_polar(theta='y')
+# 상자그림 그리기
+ggplot(airquality,aes(x=Day,y=Temp,group=Day))+geom_boxplot()
+# 히스토그램 그리기
+# binwidth를 통해 막대 그래프 구간 직접 조종
+ggplot(airquality,aes(Temp))+geom_histogram(binwidth = 1)
+# 선그래프와 산점도 함께 그리기
+ggplot(airquality,aes(x=Day,y=Temp))+geom_line(color='red')+geom_point(size=3)
+
+# Chapter 6-2) 그래프에 객체 추가하기
+# 그래프에 사선 그리기
+ggplot(economics,aes(x=data,y=psavert))+
+  geom_line()+geom_abline(intercept=12.18671,slope=-0.00054444)
+# 평행선 그리기
+ggplot(economics,aes(x=date,y=psavert))+geom_line()+geom_hline(yintercept=mean(economics$psavert))
+# 그래프에 수직선 그리기
+library(dplyr)
+x_inter<=filter(economics,psavert=min(economics$psavert))$date
+# 수직선의 위치를 파악하지 않고 직접 원하는 날짜에 수직선을 그릴 수 있음
+ggplot(economics,aes(x=date,y=psavert))+geom_line()+geom_vline(xintercept=x_inter)
+# 날짜를 그대로 입력하면 글자로 인식되어 원하는 위치에 수직선이 그려지지 않으므로 as.Date 함수를 이용해 날짜 형식으로 변환해야함
+geom_vline(xintercept=as.Date('2005-07-01'))
+# 레이블 입력하기
+ggplot(airquality,aes(x=Day,y=Temp))+geom_point()+
+  geom_text(aes(label=Temp,vjust=0,hjust=0))
+# 도형 및 화살표 넣기 
+# 사각형+화살표+ 텍스트 넣기
+ggplot(airquality,aes(x=wt,y=mpg))+geom_point()+
+  annotate('rect',xmin=3,xmax=4,ymin=12,ymax=21,alpha=0.5,fill='skyblue')+
+  annotate('segment',x=2.5,xend=3.7,y=10,yend=17,
+           color='red',arrow=arrow())+
+  annotate('text',x=2.5,y=10,label='HEY! LOOK AT THIS!')
+# 그래프와 축에 제목 추가하고 디자인 테마 적용하기 
+ggplot(mtcars,aes(x=gear))+geom_bar()+labs(x='기어수',y='자동차수',title='변속기 기어별 자동차수')
+# 상관분석하여 두 변수간의 상관관계 확인하기 
+cor.test(exdata1$Y20_CNT,exdata1$Y21_CNT)
+# 절편과 기울기 구하기: 회귀분석
+reg_result<-lm(Y21_CNT~Y20_CNT,data=exdata1)
+reg_result
+
+
+
+
+
+```
+
+
+
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
