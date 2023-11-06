@@ -1,0 +1,238 @@
+---
+title: 'Rstudy #3'
+output: html_document
+date: "2023-11-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# 데이터 가공하기
+
+library(dplyr)
+# 데이터 세트 구조 확인하기
+nrow(mtcars)
+str(mtcars)
+# 데이터 추출 및 정렬하기
+filter(mtcars,cyl==4)
+# 두가지 조건에 맞는 데이처를 필터링하기
+filter(mtcars, cyl>=6&mpg>20)
+# 열 추출하기
+head(select(mtcars,am,gear))
+# 정렬하기
+head(arrange(mtcars,wt))
+# 오름차순 정렬하기
+head(arrange(mtcars,mpg.desc(wt)))
+# 새로운 열 추가히기
+head(mutate(mtcars,years='1974'))
+# 랭크 열 할당하기
+head(mutate(mtcars,mpg_rank=rank(mpg)))
+# 중복 값 제거하기
+distinct(mtcars,cyl)
+# 여래개 열에서 중복값 제거하기
+distinct(mtcars,cyl,gear)
+# 데이터 요약하기
+summarise(mtcars,mean(cyl),min(cyl),max(cyl))
+# 그룹별로 요약하기
+gy_cyl<-group_by(mtcars,cyl)
+summarise(gy_cyl,n())
+# 샘플 추출하기
+sample_n(mtcars,10)
+# 전체 데이터의 20%를 샘플로 추출하기
+sample_frac(mtcars,0.2)
+# 파이프 연산자로 그룹별 요약하기
+group_by(mtcars,cyl)%>%summarise(n())
+# 파이프 연산자를 사용하여 순위 기준으로 정렬하기
+mutate(mtcars,mpg_rank=rank(mpg))%>% arrange(mpg_rank)
+# 데이터 가공하기
+exdata1<-read_excel("C:/Users/MYCOM/data/Rstudy/Sample1.xlsx")
+exdata1
+# 선택한 변수 추출하기
+exdata1 %>% select(ID)
+# 선택한 변수 여러개 추출하기
+exdata1 %>% select(ID,Area,Y21_CNT)
+# 선택한 변수 제외하고 추출하기
+exdata1 %>% select(-AREA)
+# 조건에 맞는 데이터만 추출하기
+exdata1 %>% filter(AREA=='서울')
+# 데이터 오름차순 정렬하기
+exdata1 %>% arrange(AGE)
+# 데이터 내림차순 정렬하기
+exdata1 %>% arrange(desc(Y21_CNT))
+# 중첩 정렬하기 
+exdata1 %>% arrange(AGE,desc(Y21_CNT))
+# 변수 합 계산하기
+exdata1 %>% summarise(TOT_Y21_AMT=sum(Y21_AMT))
+# 변수 값을 그룹별로 합산하기
+exdata1 %>% group_by(AREA) %>% summarise(SUM_Y21_AMT = sum(Y21_AMT))
+
+
+# 엑셀 파일 불러오기
+library(readxl)
+m_history <- read_excel("C:/Users/MYCOM/data/Rstudy/Sample2_m_history.xlsx")
+f_history <- read_excel("C:/Users/MYCOM/data/Rstudy/Sample3_f_history.xlsx")
+View(m_history)
+View(f_history)
+
+
+# 테이블을 세로로 결합하기
+exdata_bindjoin <- bind_rows(m_history, f_history)
+View(exdata_bindjoin)
+
+
+# 엑셀 파일 불러오기
+library(readxl)
+jeju_y21_history <- read_excel("C:/Users/MYCOM/data/Rstudy/Sample4_y21_history.xlsx")
+jeju_y20_history <- read_excel("C:/Users/MYCOM/data/Rstudy/Sample5_y20_history.xlsx")
+View(jeju_y21_history)
+View(jeju_y20_history)
+
+
+# 첫 번째 테이블 기준으로 가로 결합하기
+bind_col <- left_join(jeju_y21_history, jeju_y20_history, by = "ID")
+View(bind_col)
+
+
+# 키 변수가 동일할 때만 가로 결합하기
+bind_col_inner <- inner_join(jeju_y21_history, jeju_y20_history, by = "ID")
+View(bind_col_inner)
+
+
+# 키 변수를 기준으로 모두 가로 결합하기
+bind_col_full <- full_join(jeju_y21_history, jeju_y20_history, by = "ID")
+View(bind_col_full)
+
+# reshape2 패키지 설치하기
+install.packages("reshape2")
+
+
+# airquality 데이터 세트 확인하기
+head(airquality)
+
+
+# 변수명 소문자로 통일하기
+names(airquality) <- tolower(names(airquality))
+head(airquality)
+
+
+# 열을 행으로 바꾸기
+library(reshape2)
+melt_test <- melt(airquality)
+head(melt_test)
+
+tail(melt_test)
+
+
+# 기준을 정해 열을 행으로 바꾸기
+melt_test2 <- melt(airquality, id.vars = c("month", "wind"),
+                   measure.vars = "ozone")
+head(melt_test2)
+
+
+# 변수명 소문자로 통일하기
+names(airquality) <- tolower(names(airquality))
+head(airquality)
+
+
+# 열을 행으로 바꾸기
+library(reshape2)
+aq_melt <- melt(airquality, id.vars = c("month", "day"), na.rm = TRUE)
+head(aq_melt)
+
+
+# 행을 열로 바꾸기
+aq_dcast <- dcast(aq_melt, month + day ~ variable)
+head(aq_dcast)
+
+View(airquality)
+View(aq_melt)
+View(aq_dcast)
+
+
+# 행을 변수로 바꾸기
+acast(aq_melt, day ~ month ~ variable)
+
+
+# cast() 함수로 평균 요약 확인하기
+acast(aq_melt, month ~ variable, mean)
+
+
+# cast() 함수로 합계 요약 확인하기
+dcast(aq_melt, month ~ variable, sum) 
+
+# 결측치 확인하기
+x <- c(1, 2, NA, 4, 5)
+x
+sum(x)
+is.na(x)
+table(is.na(x))
+
+
+# 결측치 제외하고 연산하기
+x <- c(1, 2, NA, 4, 5)
+x
+sum(x)
+is.na(x)
+sum(x, na.rm = T)
+
+
+# airquality 데이터 세트 결측치 확인하기
+data(airquality)
+is.na(airquality)
+
+
+# 데이터 세트에 있는 결측치 전체 개수 확인하기
+sum(is.na(airquality))
+
+
+# 컬럼별 결측치 개수 확인하기
+colSums(is.na(airquality))
+
+
+# 결측치가 있는 행 제거하기
+data(airquality)
+na.omit(airquality)
+
+
+# 결측치 0으로 대체하기
+data(airquality)
+airquality[is.na(airquality)] <- 0
+colSums(is.na(airquality))
+
+
+# 이상치 확인하기
+data(mtcars)
+boxplot(mtcars$wt)
+
+
+# 상자 그림의 기술통계량 확인하기
+boxplot(mtcars$wt)$stats
+
+
+# 이상치 확인하기
+mtcars$wt > 5.25
+
+mtcars$wt <- ifelse(mtcars$wt > 5.25, NA, mtcars$wt)
+mtcars$wt
+ 
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
