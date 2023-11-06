@@ -1,0 +1,84 @@
+---
+title: "Rstudy#3_forreal"
+output: pdf_document
+date: "2023-10-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+data<-read.csv("C:/Users/MYCOM/OneDrive/문서/카카오톡 받은 파일/crime.csv")
+head(data)
+
+# 데이터 확인하기
+summarise(data)
+library(dplyr)
+# 강남구 필터링해서 보보기
+data %>% filter(자치구별.2. == '강남구')
+# 2022 발생건수 별로 지역 확인하기
+head(data %>% arrange(desc(X2022)))
+# 열을 행으로 바꿔보기
+library(reshape2)
+data2<-melt(data);head(data2)
+# 결측치 확인하기
+sum(is.na(data))
+# 랭크를 열에 할당하기
+mutate(data,rank=rank(X2022))
+
+# 선택한 변수만 추출하기
+tail(data%>%select(-자치구별.1.,-자치구별.2.,-X2022))
+
+# 데이터 프레임의 네 번째 행부터 끝까지의 부분을 숫자로 변환
+subset_data <- data[4:nrow(data), 3:ncol(data)]
+# NA값 0으로 대체
+subset_data[is.na(subset_data)] <- 0
+# 각 열을 순회하면서 숫자로 변환
+for (col in 1:ncol(subset_data)) {
+  subset_data[, col] <- as.numeric(subset_data[, col])
+ }
+# 원래 데이터 프레임에 변환된 부분을 다시 할당
+data[4:nrow(data), 3:ncol(data)] <- subset_data
+
+
+# numeric 변수 따로 저장히기기
+X2022_1<-as.numeric(data$X2022.1[4:nrow(data)]);X2022_1<-as.data.frame(X2022_1)
+X2022_2<-as.numeric(data$X2022.2[4:nrow(data)]);X2022_2<-as.data.frame(X2022_2)
+X2022_3<-as.numeric(data$X2022.3[4:nrow(data)]);X2022_3<-as.data.frame(X2022_3)
+X2022_4<-as.numeric(data$X2022.4[4:nrow(data)]);X2022_4<-as.data.frame(X2022_4)
+X2022_5<-as.numeric(data$X2022.5[4:nrow(data)]);X2022_5<-as.data.frame(X2022_5)
+X2022_6<-as.numeric(data$X2022.6[4:nrow(data)]);X2022_6<-as.data.frame(X2022_6)
+X2022_7<-as.numeric(data$X2022.7[4:nrow(data)]);X2022_7<-as.data.frame(X2022_7)
+X2022_8<-as.numeric(data$X2022.8[4:nrow(data)]);X2022_8<-as.data.frame(X2022_8)
+X2022_9<-as.numeric(data$X2022.9[4:nrow(data)]);X2022_9<-as.data.frame(X2022_9)
+X2022_10<-as.numeric(data$X2022.10[4:nrow(data)]);X2022_10<-as.data.frame(X2022_10)
+X2022_11<-as.numeric(data$X2022.11[4:nrow(data)]);X2022_11<-as.data.frame(X2022_11)
+# 박스플롯 통해 이상치 확인하기
+boxplot(X2022_1)$stats
+boxplot(X2022_2)$stats
+boxplot(X2022_3)$stats
+boxplot(X2022_4)$stats
+
+# 위 numeric 변수 합치기
+combined_X<-cbind(X2022_1, X2022_2,X2022_3,X2022_4,X2022_5,X2022_6,X2022_7,X2022_8,X2022_9,X2022_10,X2022_11)
+# 기술통계량 확인하기
+summary(combined_X)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
