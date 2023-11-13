@@ -1,0 +1,96 @@
+---
+title: "Rstudy#4"
+output: word_document
+date: "2023-11-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+##CH07-1 지역별 국내 휴양림 분포 비교하기
+# 엑셀 파일 가져오기
+library(readxl)
+forest_example_data<-read_excel("C:/Users/MYCOM/Downloads/forest_example_data.xls")
+colnames(forest_example_data)<-c('name','city','gubun','area','number','stay','city_new','code','codename')
+str(forest_example_data)
+head(forest_example_data)
+```
+
+
+
+
+```{r}
+# freq함수로 시도별 휴양림 빈도분석하기
+library(descr)
+freq(forest_example_data$city,plot=T,main='city')
+# plot=T를 통해 막대 그래프와 함께 출력하기
+#  table 함수로 시도별 휴양림 빈도분석하기
+city_table<-table(forest_example_data$city)
+city_table
+barplot(city_table)
+# count 함수로 시도별 휴양림 빈도분석하고 내림차순 정렬하기 
+library(dplyr)
+count(forest_example_data,city)%>%arrange(desc(n))
+# 소재지 시도명 칼럼으로 시도별 분포 확인하기
+count(forest_example_data,city_new)%>%arrange(desc(n))
+# 제공기관별 칼럼으로 시도별 분포 확인하기
+#count(forest_example_data,codename)%>%arrange(desc(n))
+#이때 null값으로 인해 제대로 값이 나오지 않음
+```
+
+
+```{r}
+##CH07-2 해외 입국자 추이 확인하기
+library(readxl)
+entrance_xls<-read_excel("C:/Users/MYCOM/Downloads/entrance_exam.xls")
+str(entrance_xls)
+head(entrance_xls)
+```
+
+
+```{r}
+
+colnames(entrance_xls)<-c('country','JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC')
+entrance_xls$country<-gsub(' ','',entrance_xls$country)
+# 문자열을 대체하는 함수로 특정 문자 열을 찾아 원하는 문자로 한꺼번에 변경 가능한 함수
+entrance_xls
+```
+```{r}
+# 국가 수 확인 및 상위 5개국 추출하기
+# 1월 기준 상위 5개국 추출하기
+entrance_xls |>nrow()
+top5_country<-entrance_xls[order(-entrance_xls$JAN),]|>head(n=5)
+top5_country
+# 네이티브 파이프 연산자 |>
+# 시각화를 위한 데이터 재구조화하기
+library(reshape2)
+top5_melt<-melt(top5_country,id.vars='country',variable.name='mon')
+head(top5_melt)
+```
+```{r}
+library(ggplot2)
+ggplot(top5_melt,aes(x=mon,y=value,group=country))+geom_line(aes(color=country))
+
+# 막대그래프 그리기
+ggplot(top5_melt,aes(x=mon,y=value,fill=country))+geom_bar(stat='identity',position='dodge')
+# 누적 막대그래프를 위해선 position 옵션을 stack으로 지정해야 함
+ggplot(top5_melt,aes(x=mon,y=value,fill=country))+geom_bar(stat='identity',position='stack')
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
