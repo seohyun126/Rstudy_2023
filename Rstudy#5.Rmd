@@ -1,0 +1,108 @@
+---
+title: "Rstudy#5"
+output: word_document
+date: "2023-11-19"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+# 7-3 지도에서 코로나 19 선별진료소 위치 확인하기
+# 엑셀 파일 가져오기
+library(readxl)
+xlsdata<-read_excel("C:/Users/MYCOM/Downloads/선별진료소_20231120103548.xls")
+View(xlsdata)
+# 데이터 칼럼 추출 및 이름 변경하기
+data_raw<-xlsdata[,c(2:5)]
+head(data_raw)
+# 칼럼명 변경
+names(data_raw)
+names(data_raw)<-c('state','city','name','addr')
+names(data_raw)
+# 데이터분석-빈도분석하기
+table(data_raw$state)
+barplot(table(data_raw$state))
+# 범주형 데이터 level 확인하기
+library(dplyr)
+data_raw %>% count(city)
+# 대전시 선별진료소 데이터 추출하기
+dj_data<-data_raw[data_raw$state=='대전',]
+head(dj_data)
+nrow(dj_data)
+# 지도시각화하기
+install.packages("ggmap")
+library(ggmap)
+ggmap_key<-'사용자 API 키를 입력하세요'
+register_google(ggmap_key)
+# 데이터 프레임의 칼럼명으로 주소가 있는 열을 기준으로 여러 주소의 경도와 위도 데이터를 한번에 가져올 수 있음
+dj_data<-mutate_geocode(data=dj_data,location=addr,source='google')
+head(dj_data)
+head(dj_data$lon)
+# 대전시 데이터 시각화하기
+dj_map<-get_googlemap('대전',maptype='roadmap',zoom=11)
+ggmap(dj_map)+
+  geom_point(data=dj_data,
+            aes(x=lon,y=lat,color=factor(name)),size=3)
+
+dj_data_marker<-data.frame(dj_data$lon.dj_data$lat)
+dj_map<-get_googlemap('대전',maptype='roadmap',zoom=11,markers=dj_data_marker)
+ggmap(dj_map)+
+  geom_text(data=dj_data,aes(x=lon,y=lat),size=3,label=dj_data$name)
+```
+
+
+```{r}
+# 7-4 서울시 지역별 미세먼지 농도 차이 비교하기
+# 엑셀 파일 가져오기
+library(readxl)
+dustdata<-read_excel("C:/Users/MYCOM/Downloads/day.xlsx")
+View(dustdata)
+str(dustdata)
+# 성북구와 중구 데이터만 추출하기
+library(dplyr)
+dustdata_anal<-dustdata[,c('날짜','성북구','중구')]
+View(dustdata_anal)
+# 결측치 확인하기
+is.na(dustdata_anal)
+sum(is.na(dustdata_anal))
+# 데이터 탐색하고 시각화하기
+library(psych)
+describe(dustdata_anal$성북구)
+describe(dustdata_anal$중구)
+# 성북구와 중구 미세먼지 농도 상자 그림 그리기
+boxplot(dustdata_anal$성북구,dustdata_anal$중구,
+        main='finedust_compare',xlab='AREA',names=c('성북구','중구'),ylab='FINEDUST_PM',col=c('blue','green'))
+# 가설검증하기
+# h0: 서울 중구와 성북구 지역은 미세먼지 농도의 평균에 차이가 없다
+var.test(dustdata_anal$중구,dustdata_anal$성북구)
+t.test(dustdata_anal$중구,dustdata_anal$중구,var.equal=T)
+# 분산분석
+# 엑셀파일 가져오기
+exdata1<-read_excel("C:/Users/MYCOM/data/Rstudy/Sample1.xlsx")
+exdata1
+# 경기, 서울, 제주 지역 상자 그림으로 그리기
+boxplot(formula=Y20_CNT~AREA,data=exdata1)
+# 분산분석으로 세 집단간 평균 차이 검정하기
+anova(lm(Y20_CNT~AREA,data=exdata1))
+# 일원분산분석
+oneway.test(data=exdata1,Y20_CNT~AREA,var.equal=T)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
